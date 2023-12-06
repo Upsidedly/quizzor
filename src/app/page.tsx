@@ -2,11 +2,11 @@
 
 import Image from 'next/image';
 import { spanishQuestions } from '@/questions/spanish';
-import { Button, Kbd } from '@nextui-org/react';
-import { Input } from '@nextui-org/react';
+import { Button, Kbd, Input, Textarea } from '@nextui-org/react';
 import { Dispatch, Fragment, SetStateAction, useState } from 'react';
 import { Choice, Question, QuestionType } from '@/helpers';
 import { RotateCcw, Smile } from 'lucide-react';
+import Editor from '@monaco-editor/react'
 
 const Inputs = {
   [QuestionType.ShortText]: (
@@ -45,18 +45,41 @@ export default function Home() {
   const [reminder, setReminder] = useState<string>('');
   const [borderColor, setBorderColor] = useState<string>('white');
   const [questions, setQuestions] = useState<Question[]>([]);
-  const amount = questions.length
+  const [customEditing, setCustomEditing] = useState<boolean>(false)
+  const [editorV, setEditorValue] = useState<string>('')
+  console.log(questions)
+  const amount = questions.length;
 
   const [rw, setRW] = useState<[string | null, string | null]>([null, null]);
 
-  console.log(inGame, score, amount, where, bhindex, input, reminder, [rw[0], rw[1]]);
+  // console.log(inGame, score, amount, where, bhindex, input, reminder, [rw[0], rw[1]]);
 
-  const choices = [{ text: 'Spanish Questions' }]
-  const choicesResult = [spanishQuestions]
+  const choices = [{ text: 'Spanish Questions' }, { text: 'Custom (If you dont know what this is leave it alone)' }];
+  const choicesResult = [spanishQuestions];
 
   function onSetQuestions() {
-    setQuestions(choicesResult[bhindex])
-    setBHIndex(-1)
+    if (customEditing) {
+      try {
+        const json = JSON.parse(editorV.trim())
+        console.log(json)
+        if (json === undefined) return setCustomEditing(false)
+        setQuestions(json)
+        setBHIndex(-1)
+        setCustomEditing(false)
+      } catch {
+        setCustomEditing(false)
+      }
+      return
+    }
+
+    if (amount > 0) return
+
+    if (bhindex === choices.length - 1) {
+      setCustomEditing(true)
+    } else {
+      setQuestions(choicesResult[bhindex]);
+      setBHIndex(-1);
+    }
   }
 
   function onSubmit() {
@@ -80,8 +103,8 @@ export default function Home() {
         if (gotIt) {
           setWhere(where + 1);
           setScore(score + 1);
-          setBorderColor('green-300')
-          setTimeout(() => setBorderColor('white'), 3000)
+          setBorderColor('green-300');
+          setTimeout(() => setBorderColor('white'), 3000);
         } else {
           setRW([question.answers[0], input.trim()]);
           setBHIndex(-1);
@@ -100,10 +123,10 @@ export default function Home() {
         if (gotIt) {
           setWhere(where + 1);
           setScore(score + 1);
-          setBorderColor('green-300')
-          setTimeout(() => setBorderColor('white'), 300)
+          setBorderColor('green-300');
+          setTimeout(() => setBorderColor('white'), 300);
         } else {
-          setRW([q2.choices.find((v) => "correct" in v)!.text, q2.choices[bhindex].text]);
+          setRW([q2.choices.find((v) => 'correct' in v)!.text, q2.choices[bhindex].text]);
           setBHIndex(-1);
           setInput('');
         }
@@ -116,20 +139,40 @@ export default function Home() {
     setWhere(where + 1);
   }
 
+  function onEnd() {
+    setWhere(0)
+    setQuestions([])
+    setBHIndex(-1)
+    setInput('')
+  }
+
   return inGame ? (
     <div
-      onKeyUp={(k) => (k.key === 'Enter' ? questions.length === 0 ? onSetQuestions() : onSubmit() : false)}
+      onKeyUp={(k) => (k.key === 'Enter' ? where === amount ? onEnd() : (questions.length === 0 ? customEditing ? k.ctrlKey ? onSetQuestions() : true : onSetQuestions() : onSubmit()) : false)}
       className='absolute flex min-h-screen min-w-full flex-col justify-center items-center'>
       <div id='inside' className={`h-[95%] border-1 border-${borderColor} rounded-3xl p-10 flex justify-center items-center flex-col gap-5`}>
-        {amount === 0 ? <Fragment>
-          <p className='text-2xl text-center'>Which question set would you like to do?</p>
-          <div className='flex flex-row w-full px-5 gap-5 items-center justify-center'>
-            {Inputs[QuestionType.MultipleChoice]({ type: QuestionType.MultipleChoice, choices }, [bhindex, setBHIndex], [input, setInput])}
-          </div>
+        {customEditing ? <Fragment>
+          <p className='text-2xl text-center'>Add questions in JSON Array format</p>
+          <p className='italic text-slate-500'>Types:<br />0: Short Text<br />1: Multiple Choice<br />2: Multiselect</p>
+          <Editor language='json' theme='vs-dark' width='60vw' height='60vh' onChange={(value) => value ? setEditorValue(value) : true} />
           <Button variant='flat' onPress={() => onSetQuestions()}>
-            Next <Kbd keys={['enter']} />
+            Next <Kbd keys={['ctrl', 'enter']} />
           </Button>
-        </Fragment> : rw[0] !== null && rw[1] !== null ? (
+        </Fragment> : amount === 0 ? (
+          <Fragment>
+            <p className='text-2xl text-center'>Which question set would you like to do?</p>
+            <div className='flex flex-row w-full px-5 gap-5 items-center justify-center'>
+              {Inputs[QuestionType.MultipleChoice](
+                { type: QuestionType.MultipleChoice, choices },
+                [bhindex, setBHIndex],
+                [input, setInput],
+              )}
+            </div>
+            <Button variant='flat' onPress={() => onSetQuestions()}>
+              Next <Kbd keys={['enter']} />
+            </Button>
+          </Fragment>
+        ) : rw[0] !== null && rw[1] !== null ? (
           <Fragment>
             <h1 className='text-2xl text-center'>
               You entered: <span className='text-red-400'>{rw[1]}</span>
@@ -145,7 +188,9 @@ export default function Home() {
             <h1 className='text-2xl text-center'>
               Score: [{score}/{amount}]
             </h1>
-            <Button variant='flat' color="success">Restart <RotateCcw width={16} height={16} /> </Button>
+            <Button variant='flat' color='success' onClick={() => onEnd()}>
+              Restart <RotateCcw width={16} height={16} />{' '}
+            </Button>
           </Fragment>
         ) : (
           <Fragment>
