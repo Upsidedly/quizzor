@@ -7,6 +7,13 @@ import { Dispatch, Fragment, SetStateAction, useState } from 'react';
 import { Choice, Question, QuestionType, shuffle } from '@/helpers';
 import { RotateCcw, Smile } from 'lucide-react';
 import Editor from '@monaco-editor/react'
+import { historyQuestions } from '@/questions/history';
+
+const chunk = function<const T>(arr: T[], size: number) {
+  return Array.from({ length: Math.ceil(arr.length / size) }, (_: any, i: number) =>
+    arr.slice(i * size, i * size + size)
+);
+}
 
 const Inputs = {
   [QuestionType.ShortText]: (
@@ -30,7 +37,7 @@ const Inputs = {
   ) => (
     <>
       {(q.choices as Choice[]).map((choice, i) => (
-        <Button key={choice.value ?? choice.text} variant={i === index ? 'solid' : 'bordered'} onClick={() => setIndex(i)}>
+        <Button key={choice.value ?? choice.text} variant={i === index ? 'solid' : 'bordered'} onClick={() => setIndex(i)} className='min-w-[40rem] max-w-[40rem] px-5 break-all break-normal'>
           {choice.text}
         </Button>
       ))}
@@ -45,7 +52,7 @@ const Inputs = {
   ) => (
     <>
       {q.choices.map((choice: Choice, i: number) => (
-        <Button key={choice.value ?? choice.text} variant={indexes.includes(i) ? 'solid' : 'bordered'} onClick={() => indexes.includes(i) ? setIndexes(indexes.filter((v) => v !== i)) : setIndexes([...indexes, i])}>
+        <Button key={choice.value ?? choice.text} variant={indexes.includes(i) ? 'solid' : 'bordered'} className='break-words hyphens-auto w-[10rem]' onClick={() => indexes.includes(i) ? setIndexes(indexes.filter((v) => v !== i)) : setIndexes([...indexes, i])}>
           {choice.text}
         </Button>
       ))}
@@ -72,8 +79,8 @@ export default function Home() {
 
   // console.log(inGame, score, amount, where, bhindex, input, reminder, [rw[0], rw[1]]);
 
-  const choices = [{ text: 'Spanish Questions' }, { text: 'Custom (If you dont know what this is leave it alone)' }];
-  const choicesResult = [spanishQuestions];
+  const choices = [{ text: 'Spanish Questions' }, { text: 'History Questions'}, { text: 'Custom (If you dont know what this is leave it alone)' }];
+  const choicesResult = [spanishQuestions, historyQuestions];
 
   function onSetQuestions() {
     if (customEditing) {
@@ -120,7 +127,7 @@ export default function Home() {
         setReminder('');
         if (input.trim() === '') return setReminder(justSet ? '' : 'You have to put in input to submit!');
         const gotIt = question.answers.some((v) =>
-          typeof v === 'string' ? v.toLowerCase() === input.trim().toLowerCase() : new RegExp(v, 'i').test(input.toLowerCase()),
+          typeof v === 'string' ? v.startsWith('!') ? input.toLowerCase().includes(v.trim().toLowerCase()) :  v.toLowerCase() === input.trim().toLowerCase() : new RegExp(v, 'i').test(input.toLowerCase()),
         );
 
         if (gotIt) {
@@ -129,7 +136,7 @@ export default function Home() {
           setBorderColor('green-300');
           setTimeout(() => setBorderColor('white'), 3000);
         } else {
-          setRW([question.answers[0], input.trim()]);
+          setRW([question.answers[0].startsWith('!') ? question.answers[0].slice(1) : question.answers[0], input.trim()]);
           setBHIndex(-1);
           setInput('');
         }
@@ -158,7 +165,7 @@ export default function Home() {
 
       case QuestionType.Multiselect: {
         const q2 = question as Question<QuestionType.Multiselect>;
-        const gotIt = msindexes.every((v) => "correct" in q2.choices[v])
+        const gotIt = msindexes.every((v) => "correct" in q2.choices[v]) && msindexes.length === q2.choices.filter((c) => "correct" in c).length
         if (gotIt) {
           setMSIndexes([])
           setWhere(where + 1);
@@ -198,7 +205,7 @@ export default function Home() {
         </Fragment> : amount === 0 ? (
           <Fragment>
             <p className='text-2xl text-center'>Which question set would you like to do?</p>
-            <div className='flex flex-row w-full px-5 gap-5 items-center justify-center'>
+            <div className='flex flex-col w-full px-5 gap-5 items-center justify-center'>
               {Inputs[QuestionType.MultipleChoice](
                 { type: QuestionType.MultipleChoice, choices },
                 [bhindex, setBHIndex],
@@ -235,7 +242,7 @@ export default function Home() {
             {questions[where].title && <h1>{questions[where].title}</h1>}
             <p className='text-2xl text-center'>{questions[where].prompt}</p>
             {questions[where].image && <Image src={questions[where].image!} alt="User generated image, no alt" width={700} height={700} />}
-            <div className='flex flex-row w-full px-5 gap-5 items-center justify-center'>
+            <div className='flex flex-col w-full px-5 gap-5 items-center justify-center'>
               {Inputs[questions[where].type](questions[where], [bhindex, setBHIndex], [input, setInput], [msindexes, setMSIndexes])}
             </div>
             <Button variant='flat' onPress={() => onSubmit()}>
