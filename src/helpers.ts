@@ -33,7 +33,7 @@ export type Question<T extends QuestionType = QuestionType> = {
 	image?: string
 } & QuestionTypes[T]
 
-function shuffle<const T>(array: T[]): T[] {
+export function shuffle<const T>(array: T[]): T[] {
 	let currentIndex = array.length, randomIndex;
 
 	// While there remain elements to shuffle.

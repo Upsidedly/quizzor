@@ -4,7 +4,7 @@ import Image from 'next/image';
 import { spanishQuestions } from '@/questions/spanish';
 import { Button, Kbd, Input, Textarea } from '@nextui-org/react';
 import { Dispatch, Fragment, SetStateAction, useState } from 'react';
-import { Choice, Question, QuestionType } from '@/helpers';
+import { Choice, Question, QuestionType, shuffle } from '@/helpers';
 import { RotateCcw, Smile } from 'lucide-react';
 import Editor from '@monaco-editor/react'
 
@@ -29,7 +29,7 @@ const Inputs = {
     __: [number[], Dispatch<SetStateAction<number[]>>]
   ) => (
     <>
-      {q.choices.map((choice: Choice, i: number) => (
+      {(q.choices as Choice[]).map((choice, i) => (
         <Button key={choice.value ?? choice.text} variant={i === index ? 'solid' : 'bordered'} onClick={() => setIndex(i)}>
           {choice.text}
         </Button>
@@ -176,6 +176,7 @@ export default function Home() {
 
   function onEnd() {
     setWhere(0)
+    setScore(0)
     setQuestions([])
     setBHIndex(-1)
     setMSIndexes([])
@@ -233,6 +234,7 @@ export default function Home() {
           <Fragment>
             {questions[where].title && <h1>{questions[where].title}</h1>}
             <p className='text-2xl text-center'>{questions[where].prompt}</p>
+            {questions[where].image && <Image src={questions[where].image!} alt="User generated image, no alt" width={700} height={700} />}
             <div className='flex flex-row w-full px-5 gap-5 items-center justify-center'>
               {Inputs[questions[where].type](questions[where], [bhindex, setBHIndex], [input, setInput], [msindexes, setMSIndexes])}
             </div>
