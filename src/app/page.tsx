@@ -78,7 +78,12 @@ export default function Home() {
   function onSetQuestions() {
     if (customEditing) {
       try {
-        const json = JSON.parse(editorV.trim())
+        const json = JSON.parse(editorV
+          .trim()
+          .replaceAll('QuestionType.ShortText', '0')
+          .replaceAll('QuestionType.MultipleChoice', '1')
+          .replaceAll('QuestionType.Multiselect', '2')
+          )
         console.log(json)
         if (json === undefined) return setCustomEditing(false)
         setQuestions(json)
@@ -155,6 +160,7 @@ export default function Home() {
         const q2 = question as Question<QuestionType.Multiselect>;
         const gotIt = msindexes.every((v) => "correct" in q2.choices[v])
         if (gotIt) {
+          setMSIndexes([])
           setWhere(where + 1);
           setScore(score + 1);
         } else {
