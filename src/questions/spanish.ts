@@ -1,4 +1,4 @@
-import { Question, QuestionType } from './helpers';
+import { Question, QuestionType } from '../helpers';
 
 const questionsArray = [
     // Numbers
@@ -119,7 +119,7 @@ const additionalQuestionsArray = [
     {
         type: QuestionType.MultipleChoice,
         prompt: 'What is the correct conjugation for "Yo" with ER verbs?',
-        choices: [{ text: 'o' }, { text: 'es' }, { text: 'e' }, { text: 'emos' }],
+        choices: [{ text: 'o', correct: true }, { text: 'es' }, { text: 'e' }, { text: 'emos' }],
     },
     // IR verb conjugation
     {
@@ -166,7 +166,7 @@ const additionalQuestionsArray = [
     {
         type: QuestionType.MultipleChoice,
         prompt: 'In Spanish-speaking countries, what is typically given as a second name?',
-        choices: [{ text: 'Mother’s name' }, { text: 'Father’s name' }, { text: 'Godparent’s name' }, { text: 'Saint’s name', correct: true }],
+        choices: [{ text: "Mother's name" }, { text: "Father's name" }, { text: "Godparent's name" }, { text: "Saint's name", correct: true }],
     },
     // Quinceañera (continued)
     {
@@ -264,7 +264,7 @@ const additional2QuestionsArray = [
     {
         type: QuestionType.ShortText,
         prompt: 'What is the tú method for forming affirmative commands?',
-        answers: ['Use the tú form of the verb and remove the ‘s’ at the end.'],
+        answers: ["Use the tú form of the verb and remove the ‘s' at the end."],
     },
     // Quinceañera (continued)
     {
@@ -282,7 +282,7 @@ const additional2QuestionsArray = [
     {
         type: QuestionType.ShortText,
         prompt: 'What is the significance of the first dance during a Quinceañera?',
-        answers: ['Symbolizes the girl’s first public dance and presents her to the guests.'],
+        answers: ["Symbolizes the girl's first public dance and presents her to the guests."],
     },
     // AR verb conjugation (continued)
     {
@@ -490,4 +490,4 @@ const additional2QuestionsArray = [
 ] as Question[];
 
 // Combine the original and additional questions
-export const combinedQuestionsArray = [...questionsArray, ...additionalQuestionsArray, ...additional2QuestionsArray];
+export const spanishQuestions = [...questionsArray, ...additionalQuestionsArray, ...additional2QuestionsArray];

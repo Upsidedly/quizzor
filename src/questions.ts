@@ -1,4 +1,3 @@
-import { combinedQuestionsArray } from "./generated-questions";
 import { Question, QuestionType, simpleDefinitions } from "./helpers";
 
 const numbers = `100 - cien
@@ -21,7 +20,7 @@ export const questions: Question[] = [
 	// 	answers: [v[1]]
 	// })) as Question<QuestionType.ShortText>[]),
 	// ...simpleDefinitions(numbers),
-	...combinedQuestionsArray,
+	// ...combinedQuestionsArray,
 	// {
 	// 	type: QuestionType.ShortText,
 	// 	prompt: 'What is the present continuous form of the verb [bailar]?',

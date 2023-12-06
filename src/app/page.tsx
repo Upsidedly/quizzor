@@ -1,7 +1,7 @@
 'use client';
 
 import Image from 'next/image';
-import { questions } from '@/questions';
+import { spanishQuestions } from '@/questions/spanish';
 import { Button, Kbd } from '@nextui-org/react';
 import { Input } from '@nextui-org/react';
 import { Dispatch, Fragment, SetStateAction, useState } from 'react';
@@ -39,15 +39,25 @@ const Inputs = {
 export default function Home() {
   const [inGame, setInGame] = useState(false);
   const [score, setScore] = useState(0);
-  const amount = questions.length;
   const [where, setWhere] = useState(0);
   const [bhindex, setBHIndex] = useState(-1);
   const [input, setInput] = useState<string>('');
   const [reminder, setReminder] = useState<string>('');
+  const [borderColor, setBorderColor] = useState<string>('white');
+  const [questions, setQuestions] = useState<Question[]>([]);
+  const amount = questions.length
 
   const [rw, setRW] = useState<[string | null, string | null]>([null, null]);
 
   console.log(inGame, score, amount, where, bhindex, input, reminder, [rw[0], rw[1]]);
+
+  const choices = [{ text: 'Spanish Questions' }]
+  const choicesResult = [spanishQuestions]
+
+  function onSetQuestions() {
+    setQuestions(choicesResult[bhindex])
+    setBHIndex(-1)
+  }
 
   function onSubmit() {
     if (rw[0] !== null && rw[1] !== null) {
@@ -70,6 +80,8 @@ export default function Home() {
         if (gotIt) {
           setWhere(where + 1);
           setScore(score + 1);
+          setBorderColor('green-300')
+          setTimeout(() => setBorderColor('white'), 3000)
         } else {
           setRW([question.answers[0], input.trim()]);
           setBHIndex(-1);
@@ -88,6 +100,8 @@ export default function Home() {
         if (gotIt) {
           setWhere(where + 1);
           setScore(score + 1);
+          setBorderColor('green-300')
+          setTimeout(() => setBorderColor('white'), 300)
         } else {
           setRW([q2.choices.find((v) => "correct" in v)!.text, q2.choices[bhindex].text]);
           setBHIndex(-1);
@@ -104,10 +118,18 @@ export default function Home() {
 
   return inGame ? (
     <div
-      onKeyUp={(k) => (k.key === 'Enter' ? onSubmit() : false)}
+      onKeyUp={(k) => (k.key === 'Enter' ? questions.length === 0 ? onSetQuestions() : onSubmit() : false)}
       className='absolute flex min-h-screen min-w-full flex-col justify-center items-center'>
-      <div id='inside' className='h-[95%] border-1 border-white rounded-3xl p-10 flex justify-center items-center flex-col gap-5'>
-        {rw[0] !== null && rw[1] !== null ? (
+      <div id='inside' className={`h-[95%] border-1 border-${borderColor} rounded-3xl p-10 flex justify-center items-center flex-col gap-5`}>
+        {amount === 0 ? <Fragment>
+          <p className='text-2xl text-center'>Which question set would you like to do?</p>
+          <div className='flex flex-row w-full px-5 gap-5 items-center justify-center'>
+            {Inputs[QuestionType.MultipleChoice]({ type: QuestionType.MultipleChoice, choices }, [bhindex, setBHIndex], [input, setInput])}
+          </div>
+          <Button variant='flat' onPress={() => onSetQuestions()}>
+            Next <Kbd keys={['enter']} />
+          </Button>
+        </Fragment> : rw[0] !== null && rw[1] !== null ? (
           <Fragment>
             <h1 className='text-2xl text-center'>
               You entered: <span className='text-red-400'>{rw[1]}</span>
