@@ -10,9 +10,10 @@ import Editor from '@monaco-editor/react'
 
 const Inputs = {
   [QuestionType.ShortText]: (
-    q: Question<any>,
-    [n, setIndex]: [number, Dispatch<SetStateAction<number>>],
+    _: Question<any>,
+    __: [number, Dispatch<SetStateAction<number>>],
     setInput: [string, Dispatch<SetStateAction<string>>],
+    ___: [number[], Dispatch<SetStateAction<number[]>>]
   ) => (
     <Input
       variant='bordered'
@@ -24,7 +25,8 @@ const Inputs = {
   [QuestionType.MultipleChoice]: (
     q: Question<any>,
     [index, setIndex]: [number, Dispatch<SetStateAction<number>>],
-    setInput: [string, Dispatch<SetStateAction<string>>],
+    _: [string, Dispatch<SetStateAction<string>>],
+    __: [number[], Dispatch<SetStateAction<number[]>>]
   ) => (
     <>
       {q.choices.map((choice: Choice, i: number) => (
@@ -34,6 +36,21 @@ const Inputs = {
       ))}
     </>
   ),
+
+  [QuestionType.Multiselect]: (
+    q: Question<any>,
+    _: [number, Dispatch<SetStateAction<number>>],
+    __: [string, Dispatch<SetStateAction<string>>],
+    [indexes, setIndexes]: [number[], Dispatch<SetStateAction<number[]>>]
+  ) => (
+    <>
+      {q.choices.map((choice: Choice, i: number) => (
+        <Button key={choice.value ?? choice.text} variant={indexes.includes(i) ? 'solid' : 'bordered'} onClick={() => indexes.includes(i) ? setIndexes(indexes.filter((v) => v !== i)) : setIndexes([...indexes, i])}>
+          {choice.text}
+        </Button>
+      ))}
+    </>
+  )
 };
 
 export default function Home() {
@@ -41,6 +58,7 @@ export default function Home() {
   const [score, setScore] = useState(0);
   const [where, setWhere] = useState(0);
   const [bhindex, setBHIndex] = useState(-1);
+  const [msindexes, setMSIndexes] = useState<number[]>([]);
   const [input, setInput] = useState<string>('');
   const [reminder, setReminder] = useState<string>('');
   const [borderColor, setBorderColor] = useState<string>('white');
@@ -133,6 +151,17 @@ export default function Home() {
         setWhere(where + 1);
       }
 
+      case QuestionType.Multiselect: {
+        const q2 = question as Question<QuestionType.Multiselect>;
+        const gotIt = msindexes.every((v) => "correct" in q2.choices[v])
+        if (gotIt) {
+          setWhere(where + 1);
+          setScore(score + 1);
+        } else {
+          setRW([q2.choices.filter((v) => "correct" in v).map(v => v.text).join(', '), msindexes.map((v) => q2.choices[v].text).join(', ')])
+        }
+      }
+
       default:
         setWhere(where - 1);
     }
@@ -143,6 +172,7 @@ export default function Home() {
     setWhere(0)
     setQuestions([])
     setBHIndex(-1)
+    setMSIndexes([])
     setInput('')
   }
 
@@ -166,6 +196,7 @@ export default function Home() {
                 { type: QuestionType.MultipleChoice, choices },
                 [bhindex, setBHIndex],
                 [input, setInput],
+                [msindexes, setMSIndexes]
               )}
             </div>
             <Button variant='flat' onPress={() => onSetQuestions()}>
@@ -197,7 +228,7 @@ export default function Home() {
             {questions[where].title && <h1>{questions[where].title}</h1>}
             <p className='text-2xl text-center'>{questions[where].prompt}</p>
             <div className='flex flex-row w-full px-5 gap-5 items-center justify-center'>
-              {Inputs[questions[where].type](questions[where], [bhindex, setBHIndex], [input, setInput])}
+              {Inputs[questions[where].type](questions[where], [bhindex, setBHIndex], [input, setInput], [msindexes, setMSIndexes])}
             </div>
             <Button variant='flat' onPress={() => onSubmit()}>
               Submit <Kbd keys={['enter']} />

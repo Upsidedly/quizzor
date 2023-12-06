@@ -1,6 +1,7 @@
 export const enum QuestionType {
 	ShortText,
-	MultipleChoice
+	MultipleChoice,
+	Multiselect
 }
 
 export interface Choice {
@@ -17,6 +18,11 @@ interface QuestionTypes {
 
 	[QuestionType.MultipleChoice]: {
 		type: QuestionType.MultipleChoice
+		choices: Choice[]
+	},
+
+	[QuestionType.Multiselect]: {
+		type: QuestionType.Multiselect,
 		choices: Choice[]
 	}
 }
