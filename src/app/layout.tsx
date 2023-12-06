@@ -1,8 +1,9 @@
 import type { Metadata } from 'next'
-import { Inter } from 'next/font/google'
+import { IBM_Plex_Sans } from 'next/font/google'
 import './globals.css'
+import { Providers } from './providers'
 
-const inter = Inter({ subsets: ['latin'] })
+const inter = IBM_Plex_Sans({ subsets: ['latin'], weight: '300' })
 
 export const metadata: Metadata = {
   title: 'Create Next App',
@@ -15,8 +16,12 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en">
-      <body className={inter.className}>{children}</body>
+    <html lang="en" className="dark">
+      <body className={inter.className}>
+        <Providers>
+          {children}
+        </Providers>
+        </body>
     </html>
   )
 }
