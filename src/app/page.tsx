@@ -15,6 +15,22 @@ const chunk = function<const T>(arr: T[], size: number) {
 );
 }
 
+let choicesResult = 
+[shuffle([...spanishQuestions]).map((v) => {
+  if ("choices" in v) {
+    const a = { ...v }
+    a.choices = shuffle(a.choices)
+    return a
+  }
+}), shuffle([...historyQuestions]).map((v) => {
+  if ("choices" in v) {
+    const a = { ...v }
+    a.choices = shuffle(a.choices)
+    return a
+  }
+})] as Question[][];
+// [spanishQuestions, historyQuestions]
+
 const Inputs = {
   [QuestionType.ShortText]: (
     _: Question<any>,
@@ -37,7 +53,7 @@ const Inputs = {
   ) => (
     <>
       {(q.choices as Choice[]).map((choice, i) => (
-        <Button key={choice.value ?? choice.text} variant={i === index ? 'solid' : 'bordered'} onClick={() => setIndex(i)} className='min-w-[40rem] max-w-[40rem] px-5 break-all break-normal'>
+        <Button key={choice.value ?? choice.text} variant={i === index ? 'solid' : 'bordered'} onClick={() => setIndex(i)} className='min-w-[38rem] max-w-[38rem] px-5 break-all break-normal'>
           {choice.text}
         </Button>
       ))}
@@ -52,7 +68,7 @@ const Inputs = {
   ) => (
     <>
       {q.choices.map((choice: Choice, i: number) => (
-        <Button key={choice.value ?? choice.text} variant={indexes.includes(i) ? 'solid' : 'bordered'} className='break-words hyphens-auto w-[10rem]' onClick={() => indexes.includes(i) ? setIndexes(indexes.filter((v) => v !== i)) : setIndexes([...indexes, i])}>
+        <Button key={choice.value ?? choice.text} variant={indexes.includes(i) ? 'solid' : 'bordered'} className='break-words hyphens-auto min-w-[38rem] max-w-[38rem] px-5' onClick={() => indexes.includes(i) ? setIndexes(indexes.filter((v) => v !== i)) : setIndexes([...indexes, i])}>
           {choice.text}
         </Button>
       ))}
@@ -80,7 +96,6 @@ export default function Home() {
   // console.log(inGame, score, amount, where, bhindex, input, reminder, [rw[0], rw[1]]);
 
   const choices = [{ text: 'Spanish Questions' }, { text: 'History Questions'}, { text: 'Custom (If you dont know what this is leave it alone)' }];
-  const choicesResult = [spanishQuestions, historyQuestions];
 
   function onSetQuestions() {
     if (customEditing) {
@@ -146,6 +161,7 @@ export default function Home() {
       case QuestionType.MultipleChoice: {
         const q2 = question as Question<QuestionType.MultipleChoice>;
         const gotIt = 'correct' in q2.choices[bhindex];
+        console.log(gotIt, q2)
         setBHIndex(-1);
         setInput('');
 
@@ -153,14 +169,13 @@ export default function Home() {
         if (gotIt) {
           setWhere(where + 1);
           setScore(score + 1);
-          setBorderColor('green-300');
-          setTimeout(() => setBorderColor('white'), 300);
         } else {
           setRW([q2.choices.find((v) => 'correct' in v)!.text, q2.choices[bhindex].text]);
           setBHIndex(-1);
           setInput('');
         }
         setWhere(where + 1);
+        break;
       }
 
       case QuestionType.Multiselect: {
@@ -188,6 +203,17 @@ export default function Home() {
     setBHIndex(-1)
     setMSIndexes([])
     setInput('')
+    choicesResult = ([shuffle([...spanishQuestions]).map((v) => {
+      if ("choices" in v) {
+        const a = { ...v }
+        a.choices = shuffle(a.choices); return a
+      }
+    }), shuffle([...historyQuestions]).map((v) => {
+      if ("choices" in v) {
+        const a = { ...v }
+        a.choices = shuffle(a.choices); return a
+      }
+    })]) as Question[][];
   }
 
   return inGame ? (
@@ -234,7 +260,7 @@ export default function Home() {
               Score: [{score}/{amount}]
             </h1>
             <Button variant='flat' color='success' onClick={() => onEnd()}>
-              Restart <RotateCcw width={16} height={16} />{' '}
+              Restart <RotateCcw width={16} height={16} />
             </Button>
           </Fragment>
         ) : (
