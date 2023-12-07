@@ -200,12 +200,6 @@ const additional2QuestionsArray = [
             { text: 'Vegetarian-focused' },
         ],
     },
-    // A video to watch
-    {
-        type: QuestionType.ShortText,
-        prompt: 'What is the recommended video to watch?',
-        answers: ['The wonders of Hispanic cuisine'],
-    },
     // Physical descriptions
     {
         type: QuestionType.MultipleChoice,
@@ -219,11 +213,12 @@ const additional2QuestionsArray = [
         choices: [{ text: 'After' }, { text: 'Before', correct: true }, { text: 'During' }, { text: 'Soon' }],
     },
     // Pasatiempos (Hobbies)
-    {
-        type: QuestionType.MultipleChoice,
-        prompt: 'Which hobby involves playing instruments?',
-        choices: [{ text: 'Swimming' }, { text: 'Playing video games' }, { text: 'Reading novels' }, { text: 'Playing instruments', correct: true }],
-    },
+    // Rewrite below to have the answers in spanish
+    // {
+    //     type: QuestionType.MultipleChoice,
+    //     prompt: 'Which hobby involves playing instruments?',
+    //     choices: [{ text: 'Swimming' }, { text: 'Playing video games' }, { text: 'Reading novels' }, { text: 'Playing instruments', correct: true }],
+    // },
     // Feliz Navidad 🎅🏾 (continued)
     {
         type: QuestionType.MultipleChoice,

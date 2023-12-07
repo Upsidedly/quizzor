@@ -28,7 +28,7 @@ interface QuestionTypes {
 }
 
 export type Question<T extends QuestionType = QuestionType> = {
-	prompt: string,
+	prompt: string | JSX.Element,
 	title?: string,
 	image?: string
 } & QuestionTypes[T]
