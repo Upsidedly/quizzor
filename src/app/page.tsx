@@ -22,12 +22,14 @@ let choicesResult =
     a.choices = shuffle(a.choices)
     return a
   }
+  return v
 }), shuffle([...historyQuestions]).map((v) => {
   if ("choices" in v) {
     const a = { ...v }
     a.choices = shuffle(a.choices)
     return a
   }
+  return v
 })] as Question[][];
 // [spanishQuestions, historyQuestions]
 
