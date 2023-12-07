@@ -55,7 +55,7 @@ const Inputs = {
   ) => (
     <>
       {(q.choices as Choice[]).map((choice, i) => (
-        <Button key={choice.value ?? choice.text} variant={i === index ? 'solid' : 'bordered'} onClick={() => setIndex(i)} className='min-w-[38rem] max-w-[38rem] px-5 break-all break-normal'>
+        <Button key={choice.value ?? choice.text} variant={i === index ? 'solid' : 'bordered'} onClick={() => setIndex(i)} className='min-w-[45rem] max-w-[45rem] px-5 break-all break-normal'>
           {choice.text}
         </Button>
       ))}
@@ -70,7 +70,7 @@ const Inputs = {
   ) => (
     <>
       {q.choices.map((choice: Choice, i: number) => (
-        <Button key={choice.value ?? choice.text} variant={indexes.includes(i) ? 'solid' : 'bordered'} className='break-words hyphens-auto min-w-[38rem] max-w-[38rem] px-5' onClick={() => indexes.includes(i) ? setIndexes(indexes.filter((v) => v !== i)) : setIndexes([...indexes, i])}>
+        <Button key={choice.value ?? choice.text} variant={indexes.includes(i) ? 'solid' : 'bordered'} className='break-words hyphens-auto min-w-[45rem] max-w-[45rem] px-5' onClick={() => indexes.includes(i) ? setIndexes(indexes.filter((v) => v !== i)) : setIndexes([...indexes, i])}>
           {choice.text}
         </Button>
       ))}
